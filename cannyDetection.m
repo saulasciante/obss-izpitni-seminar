@@ -1,17 +1,18 @@
 function edgeLinking = cannyDetection(imageName)
     image = imread(imageName);
-    % figure; title('Original image'); imshow(image); 
     
+    figure;
+    subplot(2, 2, 1); imshow(image); title('Original image');
+    
+    % SMOOTHING IMAGE
     smoothedImage = imgaussfilt(im2double(image), 2);
-    % figure; title('Gaussian smoothing'); imshow(smoothedImage, [min(smoothedImage(:)),max(smoothedImage(:))]); 
+    subplot(2, 2, 2); imshow(smoothedImage, [min(smoothedImage(:)),max(smoothedImage(:))]); title('Gaussian smoothing');
 
     % Prewitt mask
     kx = [-1 0 +1; -1 0 +1; -1 0 +1];
     ky = [-1 -1 -1; 0 0 0; +1 +1 +1];
     gx = conv2(smoothedImage, kx, 'same');
     gy = conv2(smoothedImage, ky, 'same');
-    % figure; title('Horizontal gradient'); imshow(gx,[]); 
-    % figure; title('Vertical gradient'); imshow(gy,[]); 
 
     mag = sqrt(gx.^2 + gy.^2);
     angles = atan2(gy, gx) * 180/pi;
@@ -41,11 +42,7 @@ function edgeLinking = cannyDetection(imageName)
             end
         end
     end
-    
-    % figure; imshow(mag, [min(mag(:)),max(mag(:))]); title('Magnitude');
-    % figure; imshow(ang, [min(ang(:)),max(ang(:))]); title('Angle');
 
-    
     % NON-MAXIMUM SUPPRESION
     % window size = 3
     edgeMatrix = zeros(imgHeight, imgWidth);
@@ -66,13 +63,12 @@ function edgeLinking = cannyDetection(imageName)
         end
     end
     
-    % figure; imshow(edgeMatrix); title('Non-maximum suppression');
-    
+    subplot(2, 2, 3); imshow(edgeMatrix); title('Non-maximum suppression');
     
     % N2: Hysteresis thresholding (separation into strong and weak edge pixels)
     % N3: Form longer edges (edge-linking w/ 8-connectivity of weak pixels to strong pixels)
-    T_LOW = 0.2;
-    T_HIGH = 0.4;
+    T_LOW = 0.1;
+    T_HIGH = 0.35;
     edgeLinking = zeros(imgHeight, imgWidth);
     
     for h = 1:imgHeight
@@ -93,5 +89,5 @@ function edgeLinking = cannyDetection(imageName)
         end
     end
     
-    figure; imshow(edgeLinking); title('After edge linking');
+    subplot(2, 2, 4); imshow(edgeLinking); title('After edge linking');
 end

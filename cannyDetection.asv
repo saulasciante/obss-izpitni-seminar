@@ -1,17 +1,16 @@
-function edgeMatrix = cannyDetection(imageName)
+function edgeLinking = cannyDetection(imageName)
     image = imread(imageName);
-    % figure; title('Original image'); imshow(image); 
+    figure;
+    subplot(2, 2, 1); title('Original image'); imshow(image); 
     
     smoothedImage = imgaussfilt(im2double(image), 2);
-    % figure; title('Gaussian smoothing'); imshow(smoothedImage, [min(smoothedImage(:)),max(smoothedImage(:))]); 
+    subplot(2, 2, 2); title('Gaussian smoothing'); imshow(smoothedImage, [min(smoothedImage(:)),max(smoothedImage(:))]); 
 
     % Prewitt mask
     kx = [-1 0 +1; -1 0 +1; -1 0 +1];
     ky = [-1 -1 -1; 0 0 0; +1 +1 +1];
     gx = conv2(smoothedImage, kx, 'same');
     gy = conv2(smoothedImage, ky, 'same');
-    % figure; title('Horizontal gradient'); imshow(gx,[]); 
-    % figure; title('Vertical gradient'); imshow(gy,[]); 
 
     mag = sqrt(gx.^2 + gy.^2);
     angles = atan2(gy, gx) * 180/pi;
@@ -66,30 +65,32 @@ function edgeMatrix = cannyDetection(imageName)
         end
     end
     
-    figure; imshow(edgeMatrix); title('Non-maximum suppression');
+    figure; subplot(2, 2, 3); imshow(edgeMatrix); title('Non-maximum suppression');
     
     
     % N2: Hysteresis thresholding (separation into strong and weak edge pixels)
     % N3: Form longer edges (edge-linking w/ 8-connectivity of weak pixels to strong pixels)
-    T_LOW = 0.1;
+    T_LOW = 0.2;
     T_HIGH = 0.4;
-    finalImage = zeros(imgHeight, imgWidth);
+    edgeLinking = zeros(imgHeight, imgWidth);
     
     for h = 1:imgHeight
         for w = 1:imgWidth
-            if (edgeMatrix(h,w) > T_HIGH)
-                finalImage(h,w) = 255;
-            elseif (edgeMatrix(h,w) < T_LOW)
-                finalImage(h,w) = 0;
+            if (edgeMatrix(h,w) < T_LOW)
+                edgeLinking(h,w) = 0;
             elseif (edgeMatrix(h,w) > T_HIGH || ...
-                    edgeMatrix(h,w) > T_HIGH || ...
-                    edgeMatrix(h,w) > T_HIGH || ...
-                    edgeMatrix(h,w) > T_HIGH || ...
-                    edgeMatrix(h,w) > T_HIGH || ...
-                    edgeMatrix(h,w) > T_HIGH || ...
-                    edgeMatrix(h,w) > T_HIGH || ...)
+                    edgeMatrix(h-1,w-1) > T_HIGH || ...
+                    edgeMatrix(h-1,w) > T_HIGH || ...
+                    edgeMatrix(h-1,w+1) > T_HIGH || ...
+                    edgeMatrix(h,w-1) > T_HIGH || ...
+                    edgeMatrix(h,w+1) > T_HIGH || ...
+                    edgeMatrix(h+1,w-1) > T_HIGH || ...
+                    edgeMatrix(h+1,w) > T_HIGH || ...
+                    edgeMatrix(h+1,w+1) > T_HIGH)
+                edgeLinking(h,w) = 255;
+            end
         end
     end
     
-    
+    figure; subplot(2, 2, 4); imshow(edgeLinking); title('After edge linking');
 end
