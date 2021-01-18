@@ -2,11 +2,11 @@ function edgeLinking = cannyDetection(imageName)
     image = imread(imageName);
     
     figure;
-    subplot(1, 2, 1); imshow(image); title('Original image');
+    subplot(2, 2, 1); imshow(image); title('Original image');
     
     % SMOOTHING IMAGE
     smoothedImage = imgaussfilt(im2double(image), 2);
-    % subplot(1, 2, 2); imshow(smoothedImage, [min(smoothedImage(:)),max(smoothedImage(:))]); title('Gaussian smoothing');
+    subplot(2, 2, 2); imshow(smoothedImage, [min(smoothedImage(:)),max(smoothedImage(:))]); title('Gaussian smoothing');
 
     % Prewitt mask
     kx = [-1 0 +1; -1 0 +1; -1 0 +1];
@@ -63,7 +63,7 @@ function edgeLinking = cannyDetection(imageName)
         end
     end
     
-    % subplot(1, 2, 1); imshow(edgeMatrix); title('Non-maximum suppression');
+    subplot(2, 2, 3); imshow(edgeMatrix); title('Non-maximum suppression');
     
     % N2: Hysteresis thresholding (separation into strong and weak edge pixels)
     % N3: Form longer edges (edge-linking w/ 8-connectivity of weak pixels to strong pixels)
@@ -89,5 +89,5 @@ function edgeLinking = cannyDetection(imageName)
         end
     end
     
-    subplot(1, 2, 2); imshow(edgeLinking); title('Edge linking');
+    subplot(2, 2, 4); imshow(edgeLinking); title('Edge linking');
 end
