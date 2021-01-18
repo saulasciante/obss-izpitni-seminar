@@ -90,4 +90,14 @@ function edgeLinking = cannyDetection(imageName)
     end
     
     subplot(2, 2, 4); imshow(edgeLinking); title('Edge linking');
+    
+    for h = 1:imgHeight
+        for w = 1:imgWidth
+            if (edgeLinking(h,w) ~= 255)
+                edgeLinking(h,w) = 0;
+            end
+        end
+    end
+    
+    figure; imshow(edgeLinking)
 end
